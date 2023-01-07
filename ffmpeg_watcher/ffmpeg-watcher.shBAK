@@ -1,0 +1,49 @@
+#!/bin/sh
+
+/tmp/ffmpeg-start.sh &
+sleep 10
+x=0
+while true
+do
+    frameA=$(tail /tmp/ffmpeg.log -n 2)
+# | sed -nr 's/.*Total: //p')
+#    frameA=1
+#    echo "$frameA"
+    sleep 5
+    frameB=$(tail /tmp/ffmpeg.log -n 2)
+# | sed -nr 's/.*Total: //p')
+#    frameB=2
+#    echo "$frameB"
+
+    if [[ "$frameA" = "$frameB" && "$frameA" != '' ]]
+    then
+        x=0
+#        echo "$frameA"
+#        echo "$frameB"
+        now=$(date)
+        echo "$now : Stream has hung."
+        pkill ffmpeg
+        now=$(date)
+        echo "$now : Killed ffmpeg.."
+        now=$(date)
+        echo "$now : Waiting 5 secs before restarting..."
+        sleep 5
+        now=$(date)
+        /tmp/ffmpeg-start.sh &
+        echo "$now : Started ffpmeg.."
+        now=$(date)
+        echo "$now : Waiting 15 secs before rechecking..."
+        sleep 15
+    else
+       if [ $x -eq 0 ]
+       then
+        now=$(date)
+        echo "$now : Stream is running..."
+        x=1
+       else
+           :
+       fi
+    fi
+
+    sleep 2
+done

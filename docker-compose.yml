@@ -1,0 +1,40 @@
+version: '3.3'
+services:
+    rtsp-simple-server:
+        environment:
+            - RTSP_PROTOCOLS=tcp
+        ports:
+            - '8554:8554' # RTSP
+            - '1935:1935' # RTMP
+            - '8888:8888' # HLS
+        volumes:
+            - './rtsp-simple-server.yml:/rtsp-simple-server.yml'
+            - '/etc/localtime:/etc/localtime:ro'
+        image: aler9/rtsp-simple-server
+        restart: unless-stopped
+        networks:
+            - rtsp_server
+        container_name: 'rtsp-simple-server'
+    ffmpeg-watcher:
+        environment:
+            - RTSPUSER1=driveway
+            - RTSPPASS1=kPaWrZG8A9
+            - RTSPIP1=192.168.21.61
+            - RTSPPORT1=8654
+            - RTSPUSER2=backyard
+            - RTSPPASS2=wt2g6VXd4V
+            - RTSPIP2=192.168.21.60
+            - RTSPPORT2=8557
+            - HILOUNICAST1=video1_unicast
+            - HILOUNICAST2=video2_unicast
+            - RTSPPATH1=hi
+            - RTSPPATH2=lo
+        build: './ffmpeg_watcher'
+        networks:
+            - rtsp_server
+        volumes:
+            - '/etc/localtime:/etc/localtime:ro'
+        container_name: 'ffmpeg-watcher'
+        restart: unless-stopped
+networks:
+    rtsp_server:
