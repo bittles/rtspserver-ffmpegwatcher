@@ -31,20 +31,18 @@ services:
             - HILOUNICAST2=video2_unicast
             - RTSPPATH1=hi
             - RTSPPATH2=lo
-            - FFMPEG_IN_OPT1=-loglevel level+info -fflags nobuffer -thread_queue_size 250 -vcodec h264 -acodec pcm_s16be -ac 1 -re -r 20 -hide_banner -avoid_negative_ts make_zero -rtsp_transport tcp
-            - FFMPEG_IN_OPT2=-loglevel level+info -fflags nobuffer -thread_queue_size 250 -vcodec h264 -acodec pcm_s16be -ac 1 -re -r 5 -hide_banner -avoid_negative_ts make_zero -rtsp_transport tcp
-            - FFMPEG_OUT_OPT1=-vcodec copy -r 20 -acodec libopus -fec 1 -ac 1 -async 100 -adrift_threshold 1 -filter:a volume=1.5 -b:a 64k -flags +global_header -rtsp_transport tcp -f rtsp
+            - FFMPEG_IN_OPT1=-loglevel level+info -fflags nobuffer -thread_queue_size 250 -re -r 20 -hide_banner -avoid_negative_ts make_zero -rtsp_transport tcp
+            - FFMPEG_IN_OPT2=-loglevel level+info -fflags nobuffer -thread_queue_size 250 -re -r 5 -hide_banner -avoid_negative_ts make_zero -rtsp_transport tcp
+            - FFMPEG_OUT_OPT1=-vcodec copy -r 20 -acodec libfdk_aac -ac 1 -filter:a volume=1.5 -b:a 64k -flags +global_header -async 30 -adrift_threshold 2 -rtsp_transport tcp -f rtsp
 #            - FFMPEG_OUT_OPT1=-vcodec copy -r 20 -acodec libopus -filter:a volume=1.5 -b:a 156k -vbr off -compression_level 8 -frame_duration 60 -fec 1 -flags +global_header -async 30 -adrift_threshold 2 -rtsp_transport tcp -f rtsp
 #-fps_mode passthrough
-            - FFMPEG_OUT_OPT2=-vcodec copy -r 5 -acodec libopus -fec 1 -ac 1 -async 100 -adrift_threshold 1 -filter:a volume=1.5 -b:a 64k -flags +global_header -rtsp_transport tcp -f rtsp
+            - FFMPEG_OUT_OPT2=-vcodec copy -r 5 -acodec libfdk_aac -ac 1 -filter:a volume=1.5 -b:a 64k -flags +global_header -async 30 -adrift_threshold 2 -rtsp_transport tcp -f rtsp
 #            - FFMPEG_OUT_OPT2=-vcodec copy -r 5 -acodec libopus -filter:a volume=1.5 -b:a 128k -vbr off -compression_level 8 -frame_duration 60 -fec 1 -application lowdelay -flags +global_header -async 30 -adrift_threshold 2 -rtsp_transport tcp -f rtsp
             - TAILCMD1=tail -n 1
             - TAILCMD2=grep frame
-#            - TAILCMD3=sed
-            - TAILCMD3=egrep
-#            - TAILCMD4=egrep
-            - TAILCMD4=cut -c 1-19
-#            - TAILCMD5=cut -c 2-20
+            - TAILCMD3=sed
+            - TAILCMD4=egrep
+            - TAILCMD5=cut -c 2-20
         build: './ffmpeg_watcher'
         networks:
             - rtsp_server

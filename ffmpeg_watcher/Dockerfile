@@ -14,7 +14,7 @@ LABEL org.label-schema.build-date="${BUILD_DATE}" \
       org.label-schema.version="1.0" \
       maintainer="https://github.com/aersaud"
 
-ENV SOFTWARE_VERSION="5.1"
+ENV SOFTWARE_VERSION="5.1.2"
 ENV SOFTWARE_VERSION_URL="http://ffmpeg.org/releases/ffmpeg-${SOFTWARE_VERSION}.tar.bz2"
 ENV BIN="/usr/bin"
 
@@ -23,6 +23,7 @@ apk update && \
 apk upgrade && \
 apk add \
   freetype-dev \
+  pcre-tools \
   gnutls-dev \
   lame-dev \
   libass-dev \
@@ -79,6 +80,8 @@ PATH="$BIN:$PATH" && \
   --enable-small \
   --enable-libfdk-aac \
   --enable-version3  \
+  --enable-parser=h264 \
+  --enable-parser=acc \
   --extra-cflags="-I${PREFIX}/include" \
   --extra-ldflags="-L${PREFIX}/lib" \
   --extra-libs="-lpthread -lm" \
