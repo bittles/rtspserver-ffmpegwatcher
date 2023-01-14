@@ -2,11 +2,12 @@ version: '3.3'
 services:
     rtsp-simple-server:
         environment:
-            - RTSP_PROTOCOLS=tcp
+#            - RTSP_PROTOCOLS=tcp
             - RTSP_RTMPDISABLE=true
             - RTSP_HLSDISABLE=true
         ports:
             - '8554:8554' # RTSP
+            - '5561:5561' # UDP
 #            - '1935:1935' # RTMP
 #            - '8888:8888' # HLS
         volumes:
@@ -14,6 +15,7 @@ services:
             - '/etc/localtime:/etc/localtime:ro'
         image: aler9/rtsp-simple-server
         restart: unless-stopped
+#        network_mode: "host"
         networks:
             - rtsp_server
         container_name: 'rtsp-simple-server'
@@ -34,7 +36,7 @@ services:
             - FFMPEG_IN_OPT1=-loglevel level+info -fflags nobuffer -thread_queue_size 250 -vcodec h264 -acodec pcm_s16be -ac 1 -re -r 20 -hide_banner -avoid_negative_ts make_zero -rtsp_transport tcp
             - FFMPEG_IN_OPT2=-loglevel level+info -fflags nobuffer -thread_queue_size 250 -vcodec h264 -acodec pcm_s16be -ac 1 -re -r 5 -hide_banner -avoid_negative_ts make_zero -rtsp_transport tcp
             - FFMPEG_OUT_OPT1=-vcodec copy -r 20 -acodec libopus -fec 1 -ac 1 -async 100 -adrift_threshold 1 -filter:a volume=1.5 -b:a 64k -flags +global_header -rtsp_transport tcp -f rtsp
-#            - FFMPEG_OUT_OPT1=-vcodec copy -r 20 -acodec libopus -filter:a volume=1.5 -b:a 156k -vbr off -compression_level 8 -frame_duration 60 -fec 1 -flags +global_header -async 30 -adrift_threshold 2 -rtsp_transport tcp -f rtsp
+#            - FFMPEG_OUT_OPT1=-vcodec copy -r 20 -acodec libopus -filter:a volume=1.5 -b:a 156k -vbr off -compression_level 8 -frame_duration 60 -fec 1 -flags +global_header -async 30 -adrift_threshold 1 -mpegts_copyts 1 -f rtsp
 #-fps_mode passthrough
             - FFMPEG_OUT_OPT2=-vcodec copy -r 5 -acodec libopus -fec 1 -ac 1 -async 100 -adrift_threshold 1 -filter:a volume=1.5 -b:a 64k -flags +global_header -rtsp_transport tcp -f rtsp
 #            - FFMPEG_OUT_OPT2=-vcodec copy -r 5 -acodec libopus -filter:a volume=1.5 -b:a 128k -vbr off -compression_level 8 -frame_duration 60 -fec 1 -application lowdelay -flags +global_header -async 30 -adrift_threshold 2 -rtsp_transport tcp -f rtsp
@@ -46,6 +48,7 @@ services:
             - TAILCMD4=cut -c 1-19
 #            - TAILCMD5=cut -c 2-20
         build: './ffmpeg_watcher'
+#        network_mode: "host"
         networks:
             - rtsp_server
         volumes:
